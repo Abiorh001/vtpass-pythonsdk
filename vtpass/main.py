@@ -63,13 +63,13 @@ class VtPassPythonSDK(object):
             response = requests.get(balance_url, headers=headers)
             response.raise_for_status()
             logging.info("Credit Wallet Balance Retrieved successfully")
-            if jr == 'True':
+            if jr == 'False':
                 return response.json()
             else:
                 return response.json().get("contents").get("balance")
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err} - {response.json()}")
-            return f"HTTP error occurred: {http_err} - {response.json()}"
+            logging.error(f"HTTP error occurred: {http_err} - {response.text}")
+            return f"HTTP error occurred: {http_err} - {response.text}"
         except Exception as err:
             logging.error(f"An error occurred: {err}")
             return f"An error occurred: {err}"
@@ -98,8 +98,8 @@ class VtPassPythonSDK(object):
                 return categories
                     
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err} - {response.json()}")
-            return f"HTTP error occurred: {http_err} - {response.json()}"
+            logging.error(f"HTTP error occurred: {http_err} - {response.text}")
+            return f"HTTP error occurred: {http_err} - {response.text}"
         except Exception as err:
             logging.error(f"An error occurred: {err}")
             return f"An error occurred: {err}"
@@ -134,8 +134,8 @@ class VtPassPythonSDK(object):
                 else:
                     return result.get("content")
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err} - {response.json()}")
-            return f"HTTP error occurred: {http_err} - {response.json()}"
+            logging.error(f"HTTP error occurred: {http_err} - {response.text}")
+            return f"HTTP error occurred: {http_err} - {response.text}"
         except Exception as err:
             logging.error(f"An error occurred: {err}")
             return f"An error occurred: {err}"
@@ -172,8 +172,8 @@ class VtPassPythonSDK(object):
                 else:
                     return result.get("content")
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err} - {response.json()}")
-            return f"HTTP error occurred: {http_err} - {response.json()}"
+            logging.error(f"HTTP error occurred: {http_err} - {response.text}")
+            return f"HTTP error occurred: {http_err} - {response.text}"
         except Exception as err:
             logging.error(f"An error occurred: {err}")
             return f"An error occurred: {err}"
@@ -260,8 +260,8 @@ class VtPassPythonSDK(object):
                 else:
                     return result.get("content")
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err} - {response.json()}")
-            return f"HTTP error occurred: {http_err} - {response.json()}"
+            logging.error(f"HTTP error occurred: {http_err} - {response.text}")
+            return f"HTTP error occurred: {http_err} - {response.text}"
         except Exception as err:
             logging.error(f"An error occurred: {err}")
             return f"An error occurred: {err}"

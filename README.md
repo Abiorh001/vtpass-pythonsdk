@@ -16,7 +16,7 @@ This repository provides the VTPass Python SDK to interact with various services
 First, clone the repository and navigate to the project directory:
 
 ```sh
-git clone https://github.com/yourusername/vtpass-pythonsdk.git
+git clone https://github.com/Abiorh001/vtpass-pythonsdk.git
 cd vtpass-pythonsdk
 ```
 

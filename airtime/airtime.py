@@ -50,8 +50,8 @@ class Airtime(VtPassPythonSDK):
                     return result.get("content")
             
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err} - {response.json()}")
-            return f"HTTP error occurred: {http_err} - {response.json()}"
+            logging.error(f"HTTP error occurred: {http_err} - {response.text}")
+            return f"HTTP error occurred: {http_err} - {response.text}"
         except Exception as err:
             logging.error(f"An error occurred: {err}")
             return f"An error occurred: {err}"
