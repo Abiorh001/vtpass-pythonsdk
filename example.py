@@ -11,6 +11,8 @@ from vtpass.schema import (
     ProductOptionSchema,
     ServiceIdSchema,
 )
+from tv_subscriptions import vtpass_tv_subscription
+from tv_subscriptions.schema import TVSubscriptionSchema
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,8 +22,8 @@ live_url = os.getenv('Live_URL')
 
 
 # get wallet balance
-balance = vtPass.get_credit_wallet_balance(sandbox_url)
-print(balance)
+# balance = vtPass.get_credit_wallet_balance(sandbox_url)
+# print(balance)
 
 # get available service categories
 # service_categories = vtPass.get_available_service_categories(sandbox_url)
@@ -58,7 +60,7 @@ print(balance)
 # print(service_product_options)
 
 # # generate request id
-# request_id = vtPass.generate_request_id()
+request_id = vtPass.generate_request_id()
 # print(request_id)
 
 # # purchase airtime
@@ -72,7 +74,7 @@ print(balance)
 # print(purchase_airtime)
 
 # # get service variation code
-# service_id = ServiceIdSchema(service_id="spectranet")
+# service_id = ServiceIdSchema(service_id="showmax")
 # service_variation_code = vtPass.get_service_variation_codes(sandbox_url, service_id)
 # print(service_variation_code)
 
@@ -97,5 +99,53 @@ print(balance)
 # )
 # data_subscription = vtpass_data_subscription.purchase_data_susbscription(sandbox_url, data_sub_schema)
 # print(data_subscription)
+
+
+# verify smart card number
+# verify_smart_card_schema = VerifySmileEmailSchema(
+#     billers_code="1212121212",
+#     service_id="dstv"
+# )
+# vtpass_verify_smart_card = vtpass_tv_subscription.verify_smart_card_number(sandbox_url, verify_smart_card_schema)
+# print(vtpass_verify_smart_card)
+
+# buy tv subscription
+tv_sub_schema = TVSubscriptionSchema(
+    service_id="showmax",
+    variation_code="full",
+    request_id=request_id,
+    phone="08011111111",
+    billers_code="1212121212",
+    subscription_type="change",
+    amount=1000
+    
+   
+    
+)
+# verify smart card number
+verify_smart_card_schema = VerifySmileEmailSchema(
+    billers_code="1212121212",
+    service_id="showmax"
+)
+
+# service id for starttimes and showmax
+services_ids = ["startimes", "showmax"]
+vtpass_verify_smart_card = vtpass_tv_subscription.verify_smart_card_number(sandbox_url, verify_smart_card_schema)
+if "error" in vtpass_verify_smart_card:
+    print(vtpass_verify_smart_card)
+    print("smart card number not verified")
+else:
+    # for exisiting customers it uses the Renewwal_Amount as the amount to be paid if the susbscription_type is renew
+    if tv_sub_schema.subscription_type == "renew":
+        tv_sub_schema.amount = vtpass_verify_smart_card.get("Renewal_Amount")
+        tv_sub_schema.quantity = None
+        tv_sub_schema.variation_code = None
+    
+    elif tv_sub_schema.service_id in services_ids:
+        tv_sub_schema.subscription_type = None,
+        tv_sub_schema.quantity = None
+    tv_subscription = vtpass_tv_subscription.tv_susbscription(sandbox_url, tv_sub_schema)
+    print(tv_subscription)
+
 
 
