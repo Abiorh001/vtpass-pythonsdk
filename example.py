@@ -13,6 +13,8 @@ from vtpass.schema import (
 )
 from tv_subscriptions import vtpass_tv_subscription
 from tv_subscriptions.schema import TVSubscriptionSchema
+from electricity_payment.schema import VerifyMeterValueSchema, ElectricityPaymentSchema
+from electricity_payment import vtpass_electricity_payment
 
 # Load environment variables from .env file
 load_dotenv()
@@ -110,42 +112,72 @@ request_id = vtPass.generate_request_id()
 # print(vtpass_verify_smart_card)
 
 # buy tv subscription
-tv_sub_schema = TVSubscriptionSchema(
-    service_id="showmax",
-    variation_code="full",
-    request_id=request_id,
-    phone="08011111111",
-    billers_code="1212121212",
-    subscription_type="change",
-    amount=1000
+# tv_sub_schema = TVSubscriptionSchema(
+#     service_id="showmax",
+#     variation_code="full",
+#     request_id=request_id,
+#     phone="08011111111",
+#     billers_code="1212121212",
+#     subscription_type="change",
+#     amount=1000
     
    
     
-)
-# verify smart card number
-verify_smart_card_schema = VerifySmileEmailSchema(
-    billers_code="1212121212",
-    service_id="showmax"
-)
+# )
+# # verify smart card number
+# verify_smart_card_schema = VerifySmileEmailSchema(
+#     billers_code="1212121212",
+#     service_id="showmax"
+# )
 
-# service id for starttimes and showmax
-services_ids = ["startimes", "showmax"]
-vtpass_verify_smart_card = vtpass_tv_subscription.verify_smart_card_number(sandbox_url, verify_smart_card_schema)
-if "error" in vtpass_verify_smart_card:
-    print(vtpass_verify_smart_card)
-    print("smart card number not verified")
-else:
-    # for exisiting customers it uses the Renewwal_Amount as the amount to be paid if the susbscription_type is renew
-    if tv_sub_schema.subscription_type == "renew":
-        tv_sub_schema.amount = vtpass_verify_smart_card.get("Renewal_Amount")
-        tv_sub_schema.quantity = None
-        tv_sub_schema.variation_code = None
+# # service id for starttimes and showmax
+# services_ids = ["startimes", "showmax"]
+# vtpass_verify_smart_card = vtpass_tv_subscription.verify_smart_card_number(sandbox_url, verify_smart_card_schema)
+# if "error" in vtpass_verify_smart_card:
+#     print(vtpass_verify_smart_card)
+#     print("smart card number not verified")
+# else:
+#     # for exisiting customers it uses the Renewwal_Amount as the amount to be paid if the susbscription_type is renew
+#     if tv_sub_schema.subscription_type == "renew":
+#         tv_sub_schema.amount = vtpass_verify_smart_card.get("Renewal_Amount")
+#         tv_sub_schema.quantity = None
+#         tv_sub_schema.variation_code = None
     
-    elif tv_sub_schema.service_id in services_ids:
-        tv_sub_schema.subscription_type = None,
-        tv_sub_schema.quantity = None
-    tv_subscription = vtpass_tv_subscription.tv_susbscription(sandbox_url, tv_sub_schema)
-    print(tv_subscription)
+#     elif tv_sub_schema.service_id in services_ids:
+#         tv_sub_schema.subscription_type = None,
+#         tv_sub_schema.quantity = None
+#     tv_subscription = vtpass_tv_subscription.tv_susbscription(sandbox_url, tv_sub_schema)
+#     print(tv_subscription)
+
+# verify meter value
+# verify_meter_value = VerifyMeterValueSchema(
+#     service_id="ikeja-electric",
+#     type="postpaid",
+#     billers_code="1010101010101"
+# )
+# vtpass_verify_meter_value = vtpass_electricity_payment.verify_meter_value(sandbox_url, verify_meter_value)
+# print(vtpass_verify_meter_value)
 
 
+# electricity payment
+electricity_payment_schema = ElectricityPaymentSchema(
+    service_id="jos-electric",
+    variation_code="postpaid",
+    billers_code="1010101010101",
+    amount=1000,
+    request_id=request_id,
+    phone="08011111111"
+)
+verify_meter_value = VerifyMeterValueSchema(
+    service_id="jos-electric",
+    type="postpaid",
+    billers_code="1010101010101"
+)
+vtpass_verify_meter_value = vtpass_electricity_payment.verify_meter_value(sandbox_url, verify_meter_value)
 
+if "error" in vtpass_verify_meter_value:
+    print(vtpass_verify_meter_value)
+    print("Meter number not verified")
+else:
+    electricity_payment = vtpass_electricity_payment.electricity_payment(sandbox_url, electricity_payment_schema)
+    print(electricity_payment)
