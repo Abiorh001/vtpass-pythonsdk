@@ -29,8 +29,8 @@ class ElectricityPayment(VtPassPythonSDK):
             response = requests.post(verify_meter_value_url, headers=headers, data=json.dumps(data))
             response.raise_for_status()
             result = response.json()
-            if "code" in response and response["code"] != "000":
-                logging.error(f"An Error Response received: {response}")
+            if "code" in result and result["code"] != "000":
+                logging.error(f"An Error Response received: {result}")
                 return result
             else:
                 logging.info("Meter value verified successfully")
@@ -72,8 +72,8 @@ class ElectricityPayment(VtPassPythonSDK):
             response = requests.post(electricity_payment_url, headers=headers, data=json.dumps(data))
             response.raise_for_status()
             result = response.json()
-            if "code" in response and response["code"] != "000":
-                logging.error(f"An Error Response received: {response}")
+            if "code" in result and result["code"] != "000":
+                logging.error(f"An Error Response received: {result}")
                 return result
             else:
                 logging.info("Electricity payment successful")

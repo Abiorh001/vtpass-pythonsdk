@@ -15,7 +15,8 @@ from tv_subscriptions import vtpass_tv_subscription
 from tv_subscriptions.schema import TVSubscriptionSchema
 from electricity_payment.schema import VerifyMeterValueSchema, ElectricityPaymentSchema
 from electricity_payment import vtpass_electricity_payment
-
+from educational_payment import vtpass_educational_payment
+from educational_payment.schema import EducationalPaymentSchema, VerifyJambProfileSchema
 # Load environment variables from .env file
 load_dotenv()
 
@@ -49,9 +50,9 @@ live_url = os.getenv('Live_URL')
 #     print(service_details)
 
 # # get service variation details
-# service_id = ServiceIdVariationSchema(service_id="airtel-data")
-# service_variation_detials = vtPass.get_service_variation_details(sandbox_url, service_id)
-# print(service_variation_detials)
+service_id = ServiceIdVariationSchema(service_id="waec-registration")
+service_variation_detials = vtPass.get_service_variation_details(sandbox_url, service_id)
+print(service_variation_detials)
 
 # # get product options
 # product_option_schema = ProductOptionSchema(
@@ -121,8 +122,6 @@ request_id = vtPass.generate_request_id()
 #     subscription_type="change",
 #     amount=1000
     
-   
-    
 # )
 # # verify smart card number
 # verify_smart_card_schema = VerifySmileEmailSchema(
@@ -160,24 +159,59 @@ request_id = vtPass.generate_request_id()
 
 
 # electricity payment
-electricity_payment_schema = ElectricityPaymentSchema(
-    service_id="jos-electric",
-    variation_code="postpaid",
-    billers_code="1010101010101",
-    amount=1000,
-    request_id=request_id,
-    phone="08011111111"
-)
-verify_meter_value = VerifyMeterValueSchema(
-    service_id="jos-electric",
-    type="postpaid",
-    billers_code="1010101010101"
-)
-vtpass_verify_meter_value = vtpass_electricity_payment.verify_meter_value(sandbox_url, verify_meter_value)
+# electricity_payment_schema = ElectricityPaymentSchema(
+#     service_id="jos-electric",
+#     variation_code="postpaid",
+#     billers_code="1010101010101",
+#     amount=1000,
+#     request_id=request_id,
+#     phone="08011111111"
+# )
+# verify_meter_value = VerifyMeterValueSchema(
+#     service_id="jos-electric",
+#     type="postpaid",
+#     billers_code="1010101010101"
+# )
+# vtpass_verify_meter_value = vtpass_electricity_payment.verify_meter_value(sandbox_url, verify_meter_value)
 
-if "error" in vtpass_verify_meter_value:
-    print(vtpass_verify_meter_value)
-    print("Meter number not verified")
+# if "error" in vtpass_verify_meter_value:
+#     print(vtpass_verify_meter_value)
+#     print("Meter number not verified")
+# else:
+#     electricity_payment = vtpass_electricity_payment.electricity_payment(sandbox_url, electricity_payment_schema)
+#     print(electricity_payment)
+
+# verify jamb profile
+# verify_jamb_schema = VerifyJambProfileSchema( 
+#     service_id="jamb",
+#     billers_code="0123456789",
+#     type="de",
+# )
+# vtpass_verify_jamb_profile = vtpass_educational_payment.verify_jamb_profile(sandbox_url, verify_jamb_schema)
+# print(vtpass_verify_jamb_profile)
+
+# educational payment
+educational_payment_schema = EducationalPaymentSchema(
+    service_id="waec-registration",
+    variation_code="waec-registraion",
+    billers_code="0123456789",
+    request_id=request_id,
+    phone="08011111111",
+    quantity=1
+)
+verify_jamb_schema = VerifyJambProfileSchema( 
+    service_id="jamb",
+    billers_code="0123456789",
+    type="utme",
+)
+if educational_payment_schema.service_id == "jamb":
+    vtpass_verify_jamb_profile = vtpass_educational_payment.verify_jamb_profile(sandbox_url, verify_jamb_schema)
+    if "error" in vtpass_verify_jamb_profile:
+        print(vtpass_verify_jamb_profile)
+        print("Jamb profile not verified")
+    else:
+        educational_payment = vtpass_educational_payment.educational_payment(sandbox_url, educational_payment_schema)
+        print(educational_payment)
 else:
-    electricity_payment = vtpass_electricity_payment.electricity_payment(sandbox_url, electricity_payment_schema)
-    print(electricity_payment)
+    educational_payment = vtpass_educational_payment.educational_payment(sandbox_url, educational_payment_schema)
+    print(educational_payment)
