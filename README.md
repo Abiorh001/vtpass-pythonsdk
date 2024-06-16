@@ -42,6 +42,10 @@ Live_URL=https://live.vtpass.com/api
 
 ## Usage
 
+## Note
+
+You have two different URLs: the sandbox URL for testing and the live URL for production. You can switch between the two by using `sandbox_url` for testing and `live_url` for production.
+
 ### Import Required Modules
 
 ```python
@@ -58,7 +62,12 @@ from vtpass.schema import (
     ProductOptionSchema,
     ServiceIdSchema,
 )
-
+from tv_subscriptions import vtpass_tv_subscription
+from tv_subscriptions.schema import TVSubscriptionSchema
+from electricity_payment.schema import VerifyMeterValueSchema, ElectricityPaymentSchema
+from electricity_payment import vtpass_electricity_payment
+from educational_payment import vtpass_educational_payment
+from educational_payment.schema import EducationalPaymentSchema, VerifyJambProfileSchema, JambEducationalPaymentSchema
 # Load environment variables from .env file
 load_dotenv()
 
@@ -181,6 +190,116 @@ data_sub_schema = DataSubscriptionSchema(
 data_subscription = vtpass_data_subscription.purchase_data_susbscription(sandbox_url, data_sub_schema)
 print(data_subscription)
 ```
+
+### Verify Meter Value
+
+```python
+# Verify meter value
+verify_meter_value = VerifyMeterValueSchema(
+    service_id="ikeja-electric",
+    type="postpaid",
+    billers_code="1010101010101"
+)
+vtpass_verify_meter_value = vtpass_electricity_payment.verify_meter_value(sandbox_url, verify_meter_value)
+print(vtpass_verify_meter_value)
+```
+
+### Electricity Payment
+
+```python
+# Electricity payment
+electricity_payment_schema = ElectricityPaymentSchema(
+    service_id="jos-electric",
+    variation_code="postpaid",
+    billers_code="1010101010101",
+    amount=1000,
+    request_id=request_id,
+    phone="08011111111"
+)
+verify_meter_value = VerifyMeterValueSchema(
+    service_id="jos-electric",
+    type="postpaid",
+    billers_code="1010101010101"
+)
+vtpass_verify_meter_value = vtpass_electricity_payment.verify_meter_value(sandbox_url, verify_meter_value)
+
+if "error" in vtpass_verify_meter_value:
+    print(vtpass_verify_meter_value)
+    print("Meter number not verified")
+else:
+    electricity_payment = vtpass_electricity_payment.electricity_payment(sandbox_url, electricity_payment_schema)
+    print(electricity_payment)
+```
+
+### Verify JAMB Profile
+
+```python
+# Verify JAMB profile
+verify_jamb_schema = VerifyJambProfileSchema( 
+    service_id="jamb",
+    billers_code="0123456789",
+    type="de",
+)
+vtpass_verify_jamb_profile = vtpass_educational_payment.verify_jamb_profile(sandbox_url, verify_jamb_schema)
+print(vtpass_verify_jamb_profile)
+```
+
+### JAMB Educational Payment
+
+```python
+# JAMB educational payment
+educational_payment_schema = JambEducationalPaymentSchema(
+    service_id="jamb",
+    variation_code="utme",
+    billers_code="0123456789",
+    request_id=request_id,
+    phone="08011111111",
+)
+verify_jamb_schema = VerifyJambProfileSchema( 
+    service_id="jamb",
+    billers_code="0123456789",
+    type="utme",
+)
+vtpass_verify_jamb_profile = vtpass_educational_payment.verify_jamb_profile(sandbox_url, verify_jamb_schema)
+if "error" in vtpass_verify_jamb_profile:
+    print(vtpass_verify_jamb_profile)
+    print("JAMB profile not verified")
+else:
+    jamb_educational_payment = vtpass_educational_payment.jamb_educational_payment(sandbox_url, educational_payment_schema)
+    print(jamb_educational_payment)
+```
+
+### General Educational Payment
+
+```python
+# General educational payment
+educational_payment_schema = EducationalPaymentSchema(
+    service_id="waec",
+    variation_code="waecdirect",
+    request_id=request_id,
+    phone="08011111111",
+    billers_code="0123456789",
+    amount=1000,
+    quantity=1
+)
+educational_payment = vtpass_educational_payment.educational_payment(sandbox_url, educational_payment_schema)
+print(educational_payment)
+```
+
+### Retrieve Transaction Status
+
+```python
+# Define the request data
+data = {
+    "request_id": request_id
+}
+
+# Retrieve the transaction status and full details
+transaction_status = vtPass.get_transaction_status(sandbox_url, data)
+print(transaction_status)
+```
+
+
 
 ## License
 

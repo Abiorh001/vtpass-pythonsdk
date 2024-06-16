@@ -1,22 +1,33 @@
-from .schema import VerifyMeterValueSchema, ElectricityPaymentSchema
-from vtpass.main import VtPassPythonSDK, jr
 import json
 import logging
+
 import requests
+
+from vtpass.main import VtPassPythonSDK, jr
+
+from .schema import ElectricityPaymentSchema, VerifyMeterValueSchema
 
 logger = logging.basicConfig(level=logging.INFO)
 
 
 class ElectricityPayment(VtPassPythonSDK):
+    """
+    A class for handling electricity payments via the VtPass API.
+
+    This class provides methods to verify meter values and process electricity payments.
+    It inherits from the VtPassPythonSDK, which provides the base functionality for API interaction.
+    """
+
     def verify_meter_value(self, url: str, verify_meter_value: VerifyMeterValueSchema):
         """
-        This method is used to verify the meter value of a meter number
-        :param serviceId : The service id of the electricity service e.g benin-electric, ikeja-electric
-        :param type : The type of meter e.g prepaid, postpaid
-        :param billersCode : The meter number you wish to make the bills payment on.
-        :return: The response of the transaction
-        Error: If there is an error in the request to the API
-        it returns the error message
+        Verify the meter value of a given meter number.
+
+        This method sends a POST request to the VtPass API to verify a meter number using the provided schema.
+
+        :param url: The base URL for the VtPass API.
+        :param verify_meter_value: An instance of VerifyMeterValueSchema containing the service ID, type, and billers code.
+        :return: The response from the API as a dictionary. If the request is successful, the response content is returned.
+                In case of an error, the error message is returned.
         """
         verify_meter_value_url = f"{url}/merchant-verify"
         headers = self.post_request_headers()
@@ -26,7 +37,9 @@ class ElectricityPayment(VtPassPythonSDK):
             "billersCode": verify_meter_value.billers_code,
         }
         try:
-            response = requests.post(verify_meter_value_url, headers=headers, data=json.dumps(data))
+            response = requests.post(
+                verify_meter_value_url, headers=headers, data=json.dumps(data)
+            )
             response.raise_for_status()
             result = response.json()
             if "code" in result and result["code"] != "000":
@@ -44,19 +57,19 @@ class ElectricityPayment(VtPassPythonSDK):
         except Exception as err:
             logging.error(f"An error occurred: {err}")
             return f"An error occurred: {err}"
-    
-    def electricity_payment(self, url: str, electricity_payment_schema: ElectricityPaymentSchema):
+
+    def electricity_payment(
+        self, url: str, electricity_payment_schema: ElectricityPaymentSchema
+    ):
         """
-        This method is used to make a electricity payment
-        :param serviceID : The service id of the electricity service e.g benin-electric, ikeja-electric
-        :param variation_code : The type of meter e.g prepaid, postpaid
-        :param billersCode : The meter number you wish to make the bills payment on.
-        :param amount : The amount to be paid
-        :param phone : The phone number of the customer
-        :param request_id : A unique identifier for the request
-        :return: The response of the transaction
-        Error: If there is an error in the request to the API
-        it returns the error message
+        Make an electricity payment.
+
+        This method sends a POST request to the VtPass API to process an electricity payment using the provided schema.
+
+        :param url: The base URL for the VtPass API.
+        :param electricity_payment_schema: An instance of ElectricityPaymentSchema containing service ID, variation code, billers code, amount, phone, and request ID.
+        :return: The response from the API as a dictionary. If the request is successful, the response content is returned.
+                In case of an error, the error message is returned.
         """
         electricity_payment_url = f"{url}/pay"
         headers = self.post_request_headers()
@@ -69,7 +82,9 @@ class ElectricityPayment(VtPassPythonSDK):
             "request_id": electricity_payment_schema.request_id,
         }
         try:
-            response = requests.post(electricity_payment_url, headers=headers, data=json.dumps(data))
+            response = requests.post(
+                electricity_payment_url, headers=headers, data=json.dumps(data)
+            )
             response.raise_for_status()
             result = response.json()
             if "code" in result and result["code"] != "000":
@@ -86,4 +101,3 @@ class ElectricityPayment(VtPassPythonSDK):
             return f"HTTP error occurred: {http_err} - {response.text}"
         except Exception as err:
             logging.error(f"An error occurred: {err}")
-        
